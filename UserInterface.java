@@ -447,15 +447,6 @@ public class UserInterface {
 			Fax=scan.nextLine();
 		}
 
-		// Do a half-assed check against SQL injections
-		if(CustomerID.contains(";")||CompanyName.contains(";")||ContactName.contains(";")||ContactTitle.contains(";")||
-				Address.contains(";")||City.contains(";")||Region.contains(";")||PostalCode.contains(";")||
-				Country.contains(";")||Phone.contains(";")||Fax.contains(";")){
-			System.out.println("Injection detected. Exiting.");
-			com.Closer();
-			scan.close();
-			System.exit(-1);
-		}
 		// Add customer to database
 		com.AddCustomer(CustomerID, CompanyName, ContactName, ContactTitle, Address, City, Region,
 				PostalCode, Country, Phone, Fax);

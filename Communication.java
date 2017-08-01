@@ -48,14 +48,22 @@ public class Communication {
 //*************************************************************************************/
 
 	public String FindProduct(String productName) throws SQLException{
-		queryResults=statement.executeQuery("SELECT ProductID FROM products WHERE ProductName='"+productName+"';");
-		queryResults.next();
-		return queryResults.getString(1);
+		if(productName.contains(";")){
+			return "Injection detected";
+		}
+		else{
+			queryResults=statement.executeQuery("SELECT ProductID FROM products WHERE ProductName='"+productName+"';");
+			queryResults.next();
+			return queryResults.getString(1);
+		}
 	}
 
 //*************************************************************************************/
 
 	public boolean isCustomer(String customerID) throws SQLException{
+		if(customerID.contains(";")){
+			return false;
+		}
 		queryResults=statement.executeQuery("SELECT CustomerID FROM customers WHERE CustomerID='"+customerID+"';");
 		if(queryResults.next()){
 			return true;
@@ -66,6 +74,9 @@ public class Communication {
 //*************************************************************************************/
 
 	public boolean isEmployee(String employeeID) throws SQLException{
+		if(employeeID.contains(";")){
+			return false;
+		}
 		queryResults=statement.executeQuery("SELECT EmployeeID FROM employees WHERE EmployeeID='"+employeeID+"';");
 		if(queryResults.next()){
 			return true;
@@ -76,6 +87,9 @@ public class Communication {
 //*************************************************************************************/
 
 	public boolean isShipper(String shipVia) throws SQLException{
+		if(shipVia.contains(";")){
+			return false;
+		}
 		queryResults=statement.executeQuery("SELECT ShipperID FROM shippers WHERE ShipperID='"+shipVia+"';");
 		if(queryResults.next()){
 			return true;
@@ -85,8 +99,11 @@ public class Communication {
 
 //*************************************************************************************/
 
-	public boolean isRestockable(String productID) throws SQLException{
-		queryResults=statement.executeQuery("SELECT discontinued FROM products WHERE ProductID = "+productID+";");
+	public boolean isRestockable(String ProductID) throws SQLException{
+		if(ProductID.contains(";")){
+			return false;
+		}
+		queryResults=statement.executeQuery("SELECT discontinued FROM products WHERE ProductID = "+ProductID+";");
 		queryResults.next();
 		if(queryResults.getString(1).equalsIgnoreCase("y")) return false;
 		else return true;
@@ -95,6 +112,9 @@ public class Communication {
 //*************************************************************************************/
 
 	public boolean isOrder(String orderID) throws SQLException{
+		if(orderID.contains(";")){
+			return false;
+		}
 		queryResults=statement.executeQuery("SELECT orderID from orders where orderID="+orderID+";");
 		if(queryResults.next()) return true;
 		else return false;
@@ -103,6 +123,9 @@ public class Communication {
 //*************************************************************************************/
 
 	public boolean isShippable(String orderID) throws SQLException{
+		if(orderID.contains(";")){
+			return false;
+		}
 		queryResults=statement.executeQuery("SELECT ShippedDate from orders where orderID="+orderID+";");
 		queryResults.next();
 		String result=queryResults.getString(1);
@@ -134,8 +157,11 @@ public class Communication {
 
 //*************************************************************************************/
 
-	public float getUnitPrice(String ProductID) throws SQLException{
-		queryResults=statement.executeQuery("SELECT unitprice FROM products WHERE ProductID="+ProductID+";");
+	public float getUnitPrice(String productID) throws SQLException{
+		if(productID.contains(";")){
+			return (float)0.0;
+		}
+		queryResults=statement.executeQuery("SELECT unitprice FROM products WHERE ProductID="+productID+";");
 		queryResults.next();
 		return Float.parseFloat(queryResults.getString(1));
 	}
@@ -145,7 +171,12 @@ public class Communication {
 	public void AddCustomer(String CustomerID, String CompanyName, String ContactName, String ContactTitle,
 			String Address, String City, String Region, String PostalCode, String Country, String Phone,
 			String Fax){
-
+		if(CustomerID.contains(";")||CompanyName.contains(";")||ContactName.contains(";")||ContactTitle.contains(";")
+				||Address.contains(";")||City.contains(";")||Region.contains(";")||PostalCode.contains(";")
+				||Country.contains(";")||Phone.contains(";")
+				||Fax.contains(";")){
+			return;
+		}
 		// Add SQL statement
 		try {
 			statement.executeUpdate("INSERT INTO customers VALUES ('"+CustomerID+"','"+CompanyName+"','"+ContactName+
@@ -184,6 +215,18 @@ public class Communication {
 			String ShippedDate, String ShipVia, String Freight, String ShipName, String ShipAddress, 
 			String ShipCity, String ShipRegion, String ShipPostalCode, String ShipCountry, int[] quantity,
 			float[] discount, String[] ProductID, int numberOfProducts) throws SQLException{
+
+		if(CustomerID.contains(";")||EmployeeID.contains(";")||OrderDate.contains(";")||RequiredDate.contains(";")
+				||ShippedDate.contains(";")||ShipVia.contains(";")||Freight.contains(";")||ShipName.contains(";")
+				||ShipAddress.contains(";")||ShipCity.contains(";")||ShipRegion.contains(";")||ShipPostalCode.contains(";")
+				||ShipCountry.contains(";")){
+			return;
+		}
+		for(int i=0;i<ProductID.length;i++){
+			if(ProductID[i].contains(";"))
+				return;
+		}
+
 		int orderID=GetNewOrderID();
 
 		if(OrderDate.equalsIgnoreCase("")) OrderDate="NULL";
@@ -233,6 +276,9 @@ public class Communication {
 //*************************************************************************************/
 
 	public int GetUnitsOnOrder(String ProductID) throws SQLException{
+		if(ProductID.contains(";")){
+			return 0;
+		}
 		queryResults=statement.executeQuery("SELECT UnitsOnOrder FROM products WHERE ProductID="+ProductID+";");
 		queryResults.next();
 		return Integer.parseInt(queryResults.getString(1));
@@ -241,6 +287,9 @@ public class Communication {
 //*************************************************************************************/
 
 	public int GetUnitsInStock(String productID) throws SQLException{
+		if(productID.contains(";")){
+			return 0;
+		}
 		queryResults=statement.executeQuery("SELECT UnitsInStock from products where productID="+productID+";");
 		queryResults.next();
 		return Integer.parseInt(queryResults.getString(1));
@@ -249,7 +298,9 @@ public class Communication {
 //*************************************************************************************/
 
 	public void RemoveOrder(String orderID) throws SQLException{
-
+		if(orderID.contains(";")){
+			return;
+		}
 		int quantity=0;
 		int newOrders=0;
 		int newStock=0;
@@ -294,7 +345,9 @@ public class Communication {
 //*************************************************************************************/
 
 	public void ShipOrder(String orderID, String shipDate) throws SQLException{
-
+		if(orderID.contains(";")||shipDate.contains(";")){
+			return;
+		}
 		statement.executeUpdate("UPDATE orders SET ShippedDate ='"+shipDate+"' WHERE orderID="+orderID);
 
 		System.out.println("\nOrder Shipped\n");
@@ -324,7 +377,9 @@ public class Communication {
 //*************************************************************************************/
 
 	public void Restock(String productID, int quantity) throws SQLException{
-
+		if(productID.contains(";")){
+			return;
+		}
 		int newQuantity=GetUnitsInStock(productID)+quantity;
 		if(newQuantity<0){
 			System.out.println("Cannot have negative UnitsInStock. Rejecting update.");
